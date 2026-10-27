@@ -72,6 +72,13 @@ async def compare_documents(
     if len(new_bytes) > max_bytes:
         raise HTTPException(status_code=400, detail=f"New file exceeds {settings.MAX_UPLOAD_SIZE_MB}MB size limit.")
 
+    max_request_bytes = settings.MAX_REQUEST_SIZE_MB * 1024 * 1024
+    if len(old_bytes) + len(new_bytes) > max_request_bytes:
+        raise HTTPException(
+            status_code=413,
+            detail=f"Combined documents exceed the {settings.MAX_REQUEST_SIZE_MB}MB request size limit.",
+        )
+
     if len(old_bytes) == 0:
         raise HTTPException(status_code=400, detail="Old document file is empty (0 bytes).")
     if len(new_bytes) == 0:

@@ -157,7 +157,27 @@ npm run dev
 
 ---
 
-## 7. Built-in Synthetic Demonstration
+## 7. Deploying to Vercel
+
+The repository is configured as a Vercel deployment: the React frontend is built as a static site, and the FastAPI application runs as a Python serverless function.
+
+### Configure persistent storage
+
+Vercel function filesystems are temporary and can be read-only. Before deploying, provision a PostgreSQL database (for example, Neon or Vercel Postgres) and add its connection URL as the `DATABASE_URL` environment variable in the Vercel project settings. Use a SQLAlchemy-compatible URL such as `postgresql://...`; the app selects the psycopg driver automatically.
+
+The app intentionally refuses to start on Vercel without `DATABASE_URL`. SQLite remains the default for local development, but it is not suitable for persistent Vercel history.
+
+### Deploy
+
+1. Import this repository into Vercel and leave the project root set to the repository root.
+2. Add `DATABASE_URL` under **Settings → Environment Variables** for the environments where you will deploy.
+3. Deploy. `vercel.json` builds `frontend/` and routes `/api/*` to the FastAPI function; no separate backend service is needed.
+
+Vercel limits function request bodies to approximately 4.5 MB. The API therefore enforces a 4 MB combined upload limit on Vercel (both documents together); larger uploads require a separate object-storage upload flow.
+
+---
+
+## 8. Built-in Synthetic Demonstration
 
 PolicyDiff includes a realistic synthetic scenario: **Apex University Academic & Examination Regulations (2025 vs 2026)**.
 
@@ -176,7 +196,7 @@ To view this demonstration instantly, click **"Explore Sample Comparison"** on t
 
 ---
 
-## 8. Empirical Benchmark Evaluation
+## 9. Empirical Benchmark Evaluation
 
 Run the live evaluation suite to verify precision, recall, and F1-score across 16 labeled ground-truth policy changes:
 
@@ -196,7 +216,7 @@ $env:PYTHONPATH="backend"
 
 ---
 
-## 9. Running Automated Tests
+## 10. Running Automated Tests
 
 Run the complete 19-test automated test suite:
 
@@ -237,7 +257,7 @@ npm run build
 
 ---
 
-## 10. Backend REST API Reference
+## 11. Backend REST API Reference
 
 | Method | Endpoint | Description |
 |---|---|---|
@@ -254,7 +274,7 @@ npm run build
 
 ---
 
-## 11. Known Limitations & Future Scope
+## 12. Known Limitations & Future Scope
 
 - **Image-Only PDFs**: Scanned documents without an embedded text layer are flagged by the parser; future iterations will integrate an OCR engine (such as Tesseract).
 - **Tabular Data**: Multi-column nested tables in complex PDFs are serialized into structured paragraph blocks; future work will incorporate table-structure extraction.

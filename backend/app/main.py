@@ -7,7 +7,6 @@ from fastapi.responses import JSONResponse
 from app.core.config import settings
 from app.database.database import engine, Base
 from app.api.routes import router
-from app.services.demo_generator import generate_sample_files
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(name)s: %(message)s")
 logger = logging.getLogger("policydiff")
@@ -16,15 +15,8 @@ logger = logging.getLogger("policydiff")
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Initialize DB schema
-    logger.info("Initializing SQLite database tables...")
+    logger.info("Initializing database tables...")
     Base.metadata.create_all(bind=engine)
-    
-    # Generate synthetic demo documents in sample_documents/
-    logger.info("Verifying synthetic demonstration documents...")
-    try:
-        generate_sample_files()
-    except Exception as e:
-        logger.warning(f"Could not generate sample files: {e}")
 
     yield
     logger.info("Shutting down PolicyDiff API server...")

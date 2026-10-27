@@ -1,6 +1,7 @@
 import pytest
 from fastapi.testclient import TestClient
 from app.main import app
+from app.core.config import settings
 
 client = TestClient(app)
 
@@ -81,3 +82,16 @@ def test_invalid_file_extension():
     response = client.post("/api/compare", files=files)
     assert response.status_code == 400
     assert "unsupported" in response.json()["detail"].lower()
+
+
+def test_combined_upload_size_limit(monkeypatch):
+    monkeypatch.setattr(settings, "MAX_REQUEST_SIZE_MB", 0)
+    files = {
+        "old_file": ("old.txt", b"old policy", "text/plain"),
+        "new_file": ("new.txt", b"new policy", "text/plain"),
+    }
+
+    response = client.post("/api/compare", files=files)
+
+    assert response.status_code == 413
+    assert "combined documents" in response.json()["detail"].lower()
